@@ -41,9 +41,9 @@ const App = props => {
       .catch(err => console.log(err));
   };
 
-  const deleteItem = id => {
+  const deleteItem = () => {
     axios
-      .delete(`http://localhost:5000/api/movies/${id}`)
+      .delete(`http://localhost:5000/api/movies/${props.movie.id}`)
       .then(res => {
         setMovie(res.data);
         props.history.push("/");
