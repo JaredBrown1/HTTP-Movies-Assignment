@@ -13,7 +13,7 @@ const UpdateMovie = props => {
 
   useEffect(() => {
     console.log("use effect test", props.items);
-    const selectedItem = props.items.find(item => {
+    const selectedItem = props.movie.find(item => {
       return item.id === Number(props.match.params.id);
     });
 
@@ -21,6 +21,15 @@ const UpdateMovie = props => {
       setItem(selectedItem);
     }
   }, [props.items, props.match.params]);
+
+  const handleChangeStars = (e, i) => {
+    let newStars = props.movie.stars;
+    newStars[i] = e.target.value;
+    setItem({
+      ...item,
+      stars: newStars
+    });
+  };
 
   const handleChange = e => {
     e.persist();
@@ -38,44 +47,48 @@ const UpdateMovie = props => {
 
   return (
     <div>
-      <form>
+      <form onSubmit={handleSubmit}>
         <h1>Update Movie Here</h1>
-        <label onSubmit={handleSubmit}>
-          Title:
+        <label>
+          Title:{""}
           <input
             type="text"
-            placeholder="Updated Title"
+            name="title"
             onChange={handleChange}
             value={item.title}
           />
         </label>
+
         <label>
-          Director:
+          Director:{""}
           <input
             type="text"
-            placeholder="Updated Director"
+            name="director"
             onChange={handleChange}
             value={item.director}
           />
         </label>
+
         <label>
-          Metascore:
+          Metascore:{""}
           <input
             type="text"
-            placeholder="Updated Metascore"
+            name="metascore"
             onChange={handleChange}
             value={item.price}
           />
         </label>
+
         <label>
-          Stars:
+          Stars:{""}
           <input
             type="text"
-            placeholder="Updated Stars"
+            name="stars"
             value={item.stars}
-            onChange={handleChange}
+            onChange={handleChangeStars}
           />
         </label>
+
         <button type="submit">Update</button>
       </form>
     </div>
