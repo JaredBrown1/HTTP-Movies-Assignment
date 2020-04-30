@@ -3,38 +3,83 @@ import { Route } from "react-router-dom";
 import SavedList from "./Movies/SavedList";
 import MovieList from "./Movies/MovieList";
 import Movie from "./Movies/Movie";
-import axios from 'axios';
+import UpdateMovie from "./Movies/UpdateMovie";
+import axios from "axios";
 
-const App = () => {
+const App = (props) => {
   const [savedList, setSavedList] = useState([]);
-  const [movieList, setMovieList] = useState([]);
+  const [movie, setMovie] = useState([]);
 
-  const getMovieList = () => {
+  useEffect(() => {
     axios
       .get("http://localhost:5000/api/movies")
-      .then(res => setMovieList(res.data))
-      .catch(err => console.log(err.response));
-  };
+      .then((res) => {
+        console.log("res.data", res.data);
+        setMovie(res.data);
+      })
+      .catch((err) => console.log(err));
+  }, []);
 
-  const addToSavedList = movie => {
+  const addToSavedList = (movie) => {
     setSavedList([...savedList, movie]);
   };
 
-  useEffect(() => {
-    getMovieList();
-  }, []);
+  const movieUpdate = (id, item) => {
+    axios
+      .put(`http://localhost:5000/api/movies/${id}`, item)
+      .then((response) => {
+        const updatedItem = response.data;
+        const newItems = movie.map((item) => {
+          if (item.id !== updatedItem.id) {
+            return item;
+          }
+          return updatedItem;
+        });
+        setMovie(newItems);
+        props.history.push("/");
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const deleteItem = () => {
+    axios
+      .delete(`http://localhost:5000/api/movies/${props.movie.id}`)
+      .then((res) => {
+        setMovie(res.data);
+        props.history.push("/");
+      })
+      .catch((err) => console.log(err));
+  };
 
   return (
     <>
       <SavedList list={savedList} />
-
-      <Route exact path="/">
-        <MovieList movies={movieList} />
-      </Route>
-
-      <Route path="/movies/:id">
-        <Movie addToSavedList={addToSavedList} />
-      </Route>
+      <Route exact path="/" component={MovieList} />
+      <Route
+        path="/movies/:id"
+        render={(props) => {
+          return <Movie {...props} addToSavedList={addToSavedList} />;
+        }}
+      />
+      <Route
+        path="/update-movie/:id"
+        render={(props) => (
+          <UpdateMovie {...props} movie={movie} updateItem={movieUpdate} />
+        )}
+      />
+      <Route
+        path="/movies/:id"
+        render={(props) => {
+          return (
+            <Movie
+              {...props}
+              addToSavedList={addToSavedList}
+              items={movie}
+              deleteItem={deleteItem}
+            />
+          );
+        }}
+      />
     </>
   );
 };
